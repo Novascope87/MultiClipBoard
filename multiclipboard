@@ -1,0 +1,61 @@
+import sys
+import json
+import pyperclip
+
+SAVED_DATA = 'clipboard.json'
+
+
+def save_data(filepath, data):
+    """Save data to a JSON file."""
+    try:
+        with open(filepath, 'w') as f:
+            json.dump(data, f)
+    except IOError as e:
+        print(f"Error saving data: {e}")
+        return {}
+
+
+def load_data(filepath):
+    """Load data from a JSON file."""
+    try:
+        with open(filepath, 'r') as f:
+            return json.load(f)
+    except IOError as e:
+        print(f"Error loading data: {e}")
+        return {}
+
+
+if len(sys.argv) == 2:
+    command = sys.argv[1]
+
+    # Attempt to load existing data, if any.
+    data = load_data(SAVED_DATA)
+
+    if command == 'save':
+        key = input('Enter a key: ')
+        value = pyperclip.paste()  # Use 'pyperclip' to access the clipboard content
+        data[key] = value
+        save_data(SAVED_DATA, data)
+        print(f"Data saved under key '{key}'.")
+
+    elif command == 'load':
+        key = input('Enter a key to load: ')
+        if key in data:
+            pyperclip.copy(data[key])
+            print(f"Data for key '{key}' copied to clipboard.")
+        else:
+            print(f"No data found for key '{key}'.")
+
+    elif command == 'list':
+        if data:
+            print("Saved keys:")
+            for key in data:
+                print(key)
+        else:
+            print("No data saved.")
+
+    else:
+        print('Unknown command')
+
+else:
+    print('Please enter exactly one command.')
